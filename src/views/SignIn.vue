@@ -38,6 +38,7 @@
 
       <button
         class="btn btn-lg btn-primary btn-block mb-3"
+        :disabled="isProcessing"
         type="submit"
       >
         Submit
@@ -59,22 +60,86 @@
 </template>
 
 <script>
+import authorizationAPI from './../apis/authorization'
+import { Toast } from './../utils/helpers'
+
 export default {
   data () {
     return {
       email: '',
-      password: ''
+      password: '',
+      isProcessing: false
     }
   },
   methods: {
-    handleSubmit () {
-      const data = JSON.stringify({
-        email: this.email,
-        password: this.password
-      })
+    // promise
+    // handleSubmit () {
+    //   if (!this.email || !this.password) {
+    //     Toast.fire({
+    //       icon: 'warning',
+    //       title: '請填入Email & passowrd'
+    //     })
+    //     return
+    //   }
+    //   this.isProcessing = true
 
-      // TODO: 向後端驗證使用者登入資訊是否合法
-      console.log('data', data)
+    //   authorizationAPI.signIn({
+    //     email: this.email,
+    //     password: this.password //sha-256 加密
+    //   })
+    //   .then(response => {
+    //     const { data } = response
+    //     localStorage.setItem('token', data.token)
+    //     this.$router.push('/restaurant')
+    //   })
+    //   .catch(error => {
+    //     this.isProcessing = false
+    //     console.log(error)
+        
+    //     Toast.fire({
+    //       type: 'warning',
+    //       title: 'wrong accountnumber or password'
+    //     })
+    //   })
+    // }
+
+    //async & await
+    async handleSubmit () {
+      try {
+        if (!this.email || !this.password) {
+          Toast.fire({
+            icon: 'warning',
+            title: '請輸入Email & password'
+          })
+          return
+        }
+
+        this.isProcessing = true
+        const response = await authorizationAPI.signIn({
+          email: this.email,
+          password: this.password
+        })
+        const { data } = response
+
+        console.log('aaa')
+        if (data.status !== 'success') {
+          throw new Error(data.message)
+        }
+        console.log('bbb')
+
+        localStorage.setItem('token', data.token)
+
+        this.$router.push('/restaurants')
+
+      } catch (error) {
+        this.isProcessing = false
+        console.log(error)
+        
+        Toast.fire({
+          icon: 'warning',
+          title: 'wrong accountnumber or password'
+        })
+      }
     }
   }
 }

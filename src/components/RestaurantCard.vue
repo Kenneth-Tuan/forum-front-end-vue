@@ -3,54 +3,56 @@
     <div class="card mb-4">
       <img
         class="card-img-top"
-        :src="restaurant.image"
+        :src="restaurant.image | emptyImage"
         alt="Card image cap"
         width="286px"
         height="180px"
-      >
+      />
       <div class="card-body">
         <p class="card-text title-wrap">
-                    <router-link
+          <router-link
             :to="{ name: 'restaurant', params: { id: restaurant.id } }"
           >
             {{ restaurant.name }}
           </router-link>
         </p>
-        <span class="badge badge-secondary">{{ restaurant.Category.name }}</span>
+        <span class="badge badge-secondary">{{
+          restaurant.Category.name
+        }}</span>
         <p class="card-text text-truncate">
           {{ restaurant.description }}
         </p>
       </div>
       <div class="card-footer">
         <button
-        v-if="restaurant.isFavorited"
+          v-if="restaurant.isFavorited"
           type="button"
           class="btn btn-danger btn-border favorite mr-2"
-          @click.stop.prevent="deleteFavorite"
+          @click.stop.prevent="deleteFavorite(restaurant.id)"
         >
           移除最愛
         </button>
         <button
-        v-else
+          v-else
           type="button"
           class="btn btn-primary btn-border favorite mr-2"
-          @click.stop.prevent="addFavorite"
+          @click.stop.prevent="addFavorite(restaurant.id)"
         >
           加到最愛
         </button>
         <button
-        v-if="restaurant.isLiked"
+          v-if="restaurant.isLiked"
           type="button"
           class="btn btn-danger like mr-2"
-          @click.stop.prevent="deleteLike"
+          @click.stop.prevent="deleteLike(restaurant.id)"
         >
           Unlike
         </button>
         <button
-        v-else
+          v-else
           type="button"
           class="btn btn-primary like mr-2"
-          @click.stop.prevent="addLike"
+          @click.stop.prevent="addLike(restaurant.id)"
         >
           Like
         </button>
@@ -60,43 +62,97 @@
 </template>
 
 <script>
+// import { emptyImageFilter } from '../utils/mixins'
+import usersAPI from "./../apis/users";
+import { Toast } from "../utils/helpers";
+
 export default {
   props: {
     initialRestaurant: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
-  data () {
+  // mixins: [emptyImageFilter],
+  data() {
     return {
-      restaurant: this.initialRestaurant
-    }
+      restaurant: this.initialRestaurant,
+    };
   },
   methods: {
-      addFavorite () {
-          this.restaurant = {
-              ...this.restaurant,
-              isFavorited: true
-          }
-      },
-      deleteFavorite () {
-          this.restaurant = {
-              ...this.restaurant,
-              isFavorited: false
-          }
-      },
-      addLike () {
-          this.restaurant = {
-              ...this.restaurant,
-              isLiked: true
-          }
-      },
-      deleteLike () {
-          this.restaurant = {
-              ...this.restaurant,
-              isLiked: false
-          }
+    async addFavorite(restaurantId) {
+      try {
+        const { data } = await usersAPI.addFavorite({ restaurantId });
+        if (data.status !== "success") {
+          throw new Error(data.message);
+        }
+        this.restaurant = {
+          ...this.restaurant,
+          isFavorited: true,
+        };
+      } catch (error) {
+        Toast.fire({
+          icon: "warning",
+          title: "無法將餐廳加入最愛，請稍後再試",
+        });
       }
-  }
-}
+    },
+    async deleteFavorite(restaurantId) {
+      try {
+        const { data } = await usersAPI.deleteFavorite({ restaurantId });
+        if (data.status !== "success") {
+          throw new Error(data.message);
+        }
+        this.restaurant = {
+          ...this.restaurant,
+          isFavorited: false,
+        };
+      } catch (error) {
+        Toast.fire({
+          icon: "warning",
+          title: "無法將餐廳移除最愛，請稍後再試",
+        });
+      }
+    },
+    async addLike(restaurantId) {
+      try {
+        const { data } = await usersAPI.addLike({ restaurantId });
+        if (data.status !== "success") {
+          throw new Error(data.message);
+        }
+        this.restaurant = {
+          ...this.restaurant,
+          isLiked: true,
+        };
+      } catch (error) {
+        Toast.fire({
+          icon: "warning",
+          title: "無法將餐廳加入like，請稍後再試",
+        });
+      }
+    },
+    async deleteLike(restaurantId) {
+      try {
+        const { data } = await usersAPI.deleyteLike({ restaurantId });
+        if (data.status !== "success") {
+          throw new Error(data.message);
+        }
+        this.restaurant = {
+          ...this.restaurant,
+          isLiked: false,
+        };
+      } catch (error) {
+        Toast.fire({
+          icon: "warning",
+          title: "無法將餐廳移除like，請稍後再試",
+        });
+      }
+    },
+  },
+  filters: {
+    emptyImage(src) {
+      return src || "https://via.placeholder.com/350x220/DFDFDF?text=No+Image";
+    },
+  },
+};
 </script>

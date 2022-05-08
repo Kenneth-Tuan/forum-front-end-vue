@@ -8,9 +8,11 @@
        v-for="comment in comments"
        :key="comment.id">
         <h4>
-          <a href="#">
+          <router-link
+            :to="{ name: 'restaurant', params: { id: comment.Restaurant.id } }"
+          >
             {{ comment.Restaurant.name }}
-          </a>
+          </router-link>
         </h4>
         <p>{{ comment.text }}</p>by
         <router-link
@@ -30,7 +32,13 @@
 import { fromNowFilter} from '../utils/mixins'
 
 export default {
-  mixins: [fromNowFilter]
+  mixins: [fromNowFilter],
+  props: {
+    comments: {
+      type: Array,
+      required: true
+    }
+  }
 }
 </script>
 

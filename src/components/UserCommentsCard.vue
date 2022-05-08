@@ -7,7 +7,7 @@
        :key="comment.id"
        :href="'/restaurants/' + comment.id">
         <img
-        :src="comment.Restaurant.image"
+        :src="comment.Restaurant.image | emptyImageFilter"
         width="60" height="60" class="avatar" />
       </a>
     </div>
@@ -15,6 +15,7 @@
 </template>
 
 <script>
+import { emptyImageFilter } from './../utils/mixins'
 
 export default {
     props: {
@@ -22,6 +23,8 @@ export default {
             type: Array,
             required: true
         }
-    }
+    },
+    mixins: [emptyImageFilter]
+    
 }
 </script>

@@ -7,7 +7,7 @@
        :key="follower.id"
        :href="'/users/' + follower.id">
         <img
-          :src="follower.image"
+          :src="follower.image | emptyImageFilter"
           width="60"
           height="60"
           class="avatar"
@@ -18,6 +18,7 @@
 </template>
 
 <script>
+import { emptyImageFilter } from './../utils/mixins'
 
 export default {
     props: {
@@ -25,6 +26,7 @@ export default {
             type: Array,
             required: true
         }
-    }
+    },
+    mix: [emptyImageFilter]
 }
 </script>

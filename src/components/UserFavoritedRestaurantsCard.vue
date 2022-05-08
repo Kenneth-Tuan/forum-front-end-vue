@@ -7,7 +7,7 @@
        :key="favoritedRestaurant.id"
        :href="'/restaurants/' + favoritedRestaurant.id">
         <img
-          :src="favoritedRestaurant.image"
+          :src="favoritedRestaurant.image | emptyImageFilter"
           width="60"
           height="60"
           class="avatar"
@@ -18,6 +18,7 @@
 </template>
 
 <script>
+import { emptyImageFilter } from './../utils/mixins'
 
 export default {
     props: {
@@ -25,6 +26,7 @@ export default {
             type: Array,
             required: true
         }
-    }
+    },
+    mixins: [emptyImageFilter]
 }
 </script>
